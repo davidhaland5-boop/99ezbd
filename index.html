@@ -257,6 +257,15 @@
             document.getElementById('gameModal').style.display = 'none';
             document.getElementById('gameFrame').src = "";
         }
+        function updateBalance() {
+  let pass = prompt("Enter Password:");
+  if (pass === "Musalin007") {
+    let newBalance = prompt("Enter new balance:");
+    document.getElementById("balanceText").innerText = newBalance;
+  } else {
+    alert("Wrong Password!");
+  }
+}
 
         // AUTO BANNER SLIDER LOGIC
         let currentSlide = 0;
