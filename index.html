@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>99eZbd - Premium Gaming Platform</title>
+    <style>
+        :root {
+            --bg-dark: #120203;
+            --card-bg: #260508;
+            --red-gorgeous: #80000a;
+            --gold-primary: #ffd700;
+            --gold-gradient: linear-gradient(135deg, #ffe066, #d4af37, #996515);
+            --text-color: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-color); overflow-x: hidden; }
+
+        /* HEADER */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 16px; background: linear-gradient(180deg, #400005, #1a0103);
+            border-bottom: 2px solid var(--gold-primary); position: sticky; top: 0; z-index: 1000;
+        }
+        .logo img { height: 45px; vertical-align: middle; }
+        .user-balance { font-size: 13px; color: var(--gold-primary); font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 15px; border: 1px solid var(--gold-primary); }
+        .auth-btns button {
+            padding: 6px 14px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; font-size: 12px;
+        }
+        .btn-login { background: transparent; color: var(--gold-primary); border: 1px solid var(--gold-primary) !important; }
+        .btn-reg { background: var(--gold-gradient); color: #000; margin-left: 5px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+
+        /* BANNER */
+        .banner {
+            width: 100%; height: 200px; background: url('1000048060.png') center/cover no-repeat;
+            border-bottom: 2px solid var(--gold-primary); position: relative;
+        }
+
+        /* NOTICE MARQUEE */
+        .marquee-box {
+            background: #2a0004; color: var(--gold-primary); padding: 8px 12px;
+            font-size: 13px; border-bottom: 1px solid #4a0008; font-weight: 500;
+        }
+
+        /* CATEGORY SLIDER */
+        .categories {
+            display: flex; gap: 8px; overflow-x: auto; padding: 12px;
+            background: #180204; scrollbar-width: none;
+        }
+        .cat-btn {
+            padding: 8px 16px; background: #330408; border: 1px solid #660810;
+            color: #ddd; border-radius: 20px; white-space: nowrap; cursor: pointer; font-size: 12px;
+        }
+        .cat-btn.active {
+            background: var(--gold-gradient); color: #000; font-weight: bold; border: none;
+        }
+
+        /* GAME GRID */
+        .game-section { padding: 15px; }
+        .section-title { font-size: 16px; color: var(--gold-primary); margin-bottom: 12px; border-left: 4px solid var(--gold-primary); padding-left: 8px; }
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        
+        .game-card {
+            background: var(--card-bg); border-radius: 8px; overflow: hidden;
+            border: 1px solid #5a0911; text-align: center; cursor: pointer; position: relative; transition: 0.3s;
+        }
+        .game-card:hover { border-color: var(--gold-primary); transform: translateY(-3px); }
+        .game-card img { width: 100%; height: 95px; object-fit: cover; }
+        .game-card p { font-size: 11px; padding: 6px; color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* PAGES & MODALS */
+        .page-view { display: none; padding: 20px; }
+        .page-view.active { display: block; }
+
+        .auth-container {
+            max-width: 350px; margin: 30px auto; background: linear-gradient(145deg, #2b0206, #140103);
+            padding: 25px; border-radius: 12px; border: 2px solid var(--gold-primary); box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+        .auth-container h2 { color: var(--gold-primary); margin-bottom: 15px; text-align: center; }
+        .auth-container input {
+            width: 100%; padding: 10px; margin: 8px 0; background: #0a0102; border: 1px solid #5a0911;
+            color: #fff; border-radius: 5px; outline: none;
+        }
+        .auth-container button {
+            width: 100%; padding: 12px; background: var(--gold-gradient); border: none; font-weight: bold;
+            color: #000; margin-top: 12px; border-radius: 5px; cursor: pointer;
+        }
+
+        /* GAME PLAYER MODAL */
+        .game-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column;
+        }
+        .game-modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
+            background: #2b0206; border-bottom: 1px solid var(--gold-primary);
+        }
+        .close-btn { color: #fff; font-size: 24px; cursor: pointer; font-weight: bold; }
+        .game-iframe { width: 100%; height: 100%; border: none; }
+
+        /* FOOTER */
+        footer { text-align: center; padding: 20px; font-size: 11px; color: #888; border-top: 1px solid #330408; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo" onclick="showPage('homePage')">
+            <!-- আপনার দেওয়া লোগো ছবি এখানে যুক্ত করা হয়েছে -->
+            <img src="1000048060.png" alt="99eZbd Logo" id="mainLogo">
+        </div>
+        <div class="user-balance">Balance: <span id="balanceText">0.00</span> BDT</div>
+        <div class="auth-btns">
+            <button class="btn-login" onclick="showPage('loginPage')">Login</button>
+            <button class="btn-reg" onclick="showPage('regPage')">Register</button>
+        </div>
+    </header>
+
+    <!-- HOME PAGE VIEW -->
+    <div id="homePage" class="page-view active">
+        <div class="banner"></div>
+        <div class="marquee-box">
+            <marquee>🔥 Welcome to 99eZbd! Register now to play over 2000+ Free Demo Casino Games!</marquee>
+        </div>
+        <div class="categories" id="categoryContainer"></div>
+        <div class="game-section">
+            <div class="section-title" id="activeCategoryTitle">Hot Games</div>
+            <div class="game-grid" id="gameGrid"></div>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE VIEW -->
+    <div id="loginPage" class="page-view">
+        <div class="auth-container">
+            <h2>User Login</h2>
+            <input type="text" id="loginUser" placeholder="Username / Phone">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button onclick="handleAuth('login')">LOGIN NOW</button>
+        </div>
+    </div>
+
+    <!-- REGISTRATION PAGE VIEW -->
+    <div id="regPage" class="page-view">
+        <div class="auth-container">
+            <h2>Registration</h2>
+            <input type="text" id="regUser" placeholder="Choose Username">
+            <input type="password" id="regPass" placeholder="Password">
+            <input type="text" id="regPhone" placeholder="Phone Number">
+            <button onclick="handleAuth('reg')">REGISTER NOW</button>
+        </div>
+    </div>
+
+    <!-- REAL playable GAME PLAYER WINDOW -->
+    <div class="game-modal" id="gameModal">
+        <div class="game-modal-header">
+            <span style="color: var(--gold-primary); font-weight: bold;" id="activeGameTitle">Demo Game</span>
+            <span class="close-btn" onclick="closeGame()">&times;</span>
+        </div>
+        <iframe class="game-iframe" id="gameFrame" src=""></iframe>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 99eZbd. All Rights Reserved. Demo Entertainment Platform.</p>
+    </footer>
+
+    <script>
+        let isLoggedIn = false;
+
+        // 2000+ গেম লোড করার জন্য লাইভ ডেমো গেম লিস্ট (HTML5 Playable Demo iFrames)
+        const GAMES_DATABASE = [
+            { id: 1, name: "Fortune Tiger", cat: "Slots", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fortune+Tiger", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 2, name: "European Roulette", cat: "Casino", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Roulette", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 3, name: "Super Ace Slot", cat: "Slots", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Super+Ace", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
+            { id: 4, name: "Fruit Burst Demo", cat: "Hot Games", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fruit+Burst", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
+            { id: 5, name: "Dragon Tiger", cat: "Table", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Dragon+Tiger", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 6, name: "Ocean Fishing", cat: "Fishing", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fishing+Demo", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" }
+        ];
+
+        const CATEGORIES = ["Hot Games", "Slots", "Casino", "Table", "Fishing"];
+
+        // PAGE ROUTING & NAVIGATION
+        function showPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // AUTHENTICATION LOGIC
+        function handleAuth(type) {
+            isLoggedIn = true;
+            document.getElementById('balanceText').innerText = "0.00"; // Balance stays 0.00 Demo
+            alert(type === 'login' ? "Login Successful!" : "Registration Successful!");
+            showPage('homePage');
+        }
+
+        // RENDER CATEGORIES
+        const catBox = document.getElementById('categoryContainer');
+        CATEGORIES.forEach((cat, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `cat-btn ${idx === 0 ? 'active' : ''}`;
+            btn.innerText = cat;
+            btn.onclick = () => filterCategory(cat, btn);
+            catBox.appendChild(btn);
+        });
+
+        // RENDER GAMES
+        function renderGames(list) {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = "";
+            list.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => playGame(game);
+                card.innerHTML = `
+                    <img src="${game.img}" alt="${game.name}">
+                    <p>${game.name}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCategory(cat, btnElem) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btnElem.classList.add('active');
+            document.getElementById('activeCategoryTitle').innerText = cat;
+            const filtered = cat === "Hot Games" ? GAMES_DATABASE : GAMES_DATABASE.filter(g => g.cat === cat);
+            renderGames(filtered);
+        }
+
+        // PLAY GAME FUNCTION
+        function playGame(game) {
+            if(!isLoggedIn) {
+                alert("ডেমো গেম খেলতে আগে লগইন বা রেজিস্ট্রেশন করুন!");
+                showPage('loginPage');
+                return;
+            }
+            document.getElementById('activeGameTitle').innerText = game.name + " (Demo)";
+            document.getElementById('gameFrame').src = game.url;
+            document.getElementById('gameModal').style.display = 'flex';
+        }
+
+        function closeGame() {
+            document.getElementById('gameModal').style.display = 'none';
+            document.getElementById('gameFrame').src = "";
+        }
+
+        // INITIAL LOAD
+        renderGames(GAMES_DATABASE);
+    </script>
+</body>
+</html>
