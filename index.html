@@ -8,7 +8,6 @@
         :root {
             --bg-dark: #120203;
             --card-bg: #260508;
-            --red-gorgeous: #80000a;
             --gold-primary: #ffd700;
             --gold-gradient: linear-gradient(135deg, #ffe066, #d4af37, #996515);
             --text-color: #ffffff;
@@ -23,7 +22,8 @@
             padding: 10px 16px; background: linear-gradient(180deg, #400005, #1a0103);
             border-bottom: 2px solid var(--gold-primary); position: sticky; top: 0; z-index: 1000;
         }
-        .logo img { height: 45px; vertical-align: middle; }
+        .logo img { height: 40px; vertical-align: middle; cursor: pointer; }
+        .logo h2 { color: var(--gold-primary); font-style: italic; cursor: pointer; display: inline-block; }
         .user-balance { font-size: 13px; color: var(--gold-primary); font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 15px; border: 1px solid var(--gold-primary); }
         .auth-btns button {
             padding: 6px 14px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; font-size: 12px;
@@ -31,10 +31,20 @@
         .btn-login { background: transparent; color: var(--gold-primary); border: 1px solid var(--gold-primary) !important; }
         .btn-reg { background: var(--gold-gradient); color: #000; margin-left: 5px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
 
-        /* BANNER */
-        .banner {
-            width: 100%; height: 200px; background: url('1000048060.png') center/cover no-repeat;
-            border-bottom: 2px solid var(--gold-primary); position: relative;
+        /* AUTO BANNER SLIDER */
+        .banner-slider {
+            width: 100%; height: 180px; overflow: hidden; position: relative;
+            border-bottom: 2px solid var(--gold-primary);
+        }
+        .slide {
+            width: 100%; height: 100%; object-fit: cover; display: none;
+        }
+        .slide.active {
+            display: block; animation: fade 0.8s ease-in-out;
+        }
+        @keyframes fade {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
         }
 
         /* NOTICE MARQUEE */
@@ -87,7 +97,7 @@
             color: #000; margin-top: 12px; border-radius: 5px; cursor: pointer;
         }
 
-        /* GAME PLAYER MODAL */
+        /* PLAYABLE GAME MODAL */
         .game-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column;
@@ -108,8 +118,9 @@
     <!-- HEADER -->
     <header>
         <div class="logo" onclick="showPage('homePage')">
-            <!-- আপনার দেওয়া লোগো ছবি এখানে যুক্ত করা হয়েছে -->
-            <img src="1000048060.png" alt="99eZbd Logo" id="mainLogo">
+            <!-- আপনার আপলোড করা লোগোর ছবির নাম অনুযায়ী logo.png পরিবর্তন করতে পারেন -->
+            <img src="logo.png" alt="99eZbd Logo" onerror="this.style.display='none'; document.getElementById('altLogo').style.display='inline-block';">
+            <h2 id="altLogo" style="display:none;">99eZbd</h2>
         </div>
         <div class="user-balance">Balance: <span id="balanceText">0.00</span> BDT</div>
         <div class="auth-btns">
@@ -120,7 +131,15 @@
 
     <!-- HOME PAGE VIEW -->
     <div id="homePage" class="page-view active">
-        <div class="banner"></div>
+        <!-- BANNERS AUTO SLIDER -->
+        <div class="banner-slider">
+            <div id="bannerSlides">
+                <img src="banner1.png" alt="Banner 1" class="slide active" onerror="this.src='https://picsum.photos/800/300?random=10'">
+                <img src="banner2.png" alt="Banner 2" class="slide" onerror="this.src='https://picsum.photos/800/300?random=11'">
+                <img src="banner3.png" alt="Banner 3" class="slide" onerror="this.src='https://picsum.photos/800/300?random=12'">
+            </div>
+        </div>
+
         <div class="marquee-box">
             <marquee>🔥 Welcome to 99eZbd! Register now to play over 2000+ Free Demo Casino Games!</marquee>
         </div>
@@ -135,8 +154,8 @@
     <div id="loginPage" class="page-view">
         <div class="auth-container">
             <h2>User Login</h2>
-            <input type="text" id="loginUser" placeholder="Username / Phone">
-            <input type="password" id="loginPass" placeholder="Password">
+            <input type="text" placeholder="Username / Phone">
+            <input type="password" placeholder="Password">
             <button onclick="handleAuth('login')">LOGIN NOW</button>
         </div>
     </div>
@@ -145,14 +164,14 @@
     <div id="regPage" class="page-view">
         <div class="auth-container">
             <h2>Registration</h2>
-            <input type="text" id="regUser" placeholder="Choose Username">
-            <input type="password" id="regPass" placeholder="Password">
-            <input type="text" id="regPhone" placeholder="Phone Number">
+            <input type="text" placeholder="Choose Username">
+            <input type="password" placeholder="Password">
+            <input type="text" placeholder="Phone Number">
             <button onclick="handleAuth('reg')">REGISTER NOW</button>
         </div>
     </div>
 
-    <!-- REAL playable GAME PLAYER WINDOW -->
+    <!-- PLAYABLE GAME PLAYER WINDOW -->
     <div class="game-modal" id="gameModal">
         <div class="game-modal-header">
             <span style="color: var(--gold-primary); font-weight: bold;" id="activeGameTitle">Demo Game</span>
@@ -168,33 +187,29 @@
     <script>
         let isLoggedIn = false;
 
-        // 2000+ গেম লোড করার জন্য লাইভ ডেমো গেম লিস্ট (HTML5 Playable Demo iFrames)
         const GAMES_DATABASE = [
-            { id: 1, name: "Fortune Tiger", cat: "Slots", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fortune+Tiger", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
-            { id: 2, name: "European Roulette", cat: "Casino", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Roulette", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
-            { id: 3, name: "Super Ace Slot", cat: "Slots", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Super+Ace", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
-            { id: 4, name: "Fruit Burst Demo", cat: "Hot Games", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fruit+Burst", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
-            { id: 5, name: "Dragon Tiger", cat: "Table", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Dragon+Tiger", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
-            { id: 6, name: "Ocean Fishing", cat: "Fishing", img: "https://via.placeholder.com/150/4a0008/ffd700?text=Fishing+Demo", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" }
+            { id: 1, name: "Fortune Tiger", cat: "Slots", img: "https://picsum.photos/150/100?random=1", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 2, name: "European Roulette", cat: "Casino", img: "https://picsum.photos/150/100?random=2", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 3, name: "Super Ace Slot", cat: "Slots", img: "https://picsum.photos/150/100?random=3", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
+            { id: 4, name: "Fruit Burst Demo", cat: "Hot Games", img: "https://picsum.photos/150/100?random=4", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" },
+            { id: 5, name: "Dragon Tiger", cat: "Table", img: "https://picsum.photos/150/100?random=5", url: "https://demo.evoplay.games/demo/single/html5/evoplay/table/europeanroulette" },
+            { id: 6, name: "Ocean Fishing", cat: "Fishing", img: "https://picsum.photos/150/100?random=6", url: "https://demo.evoplay.games/demo/single/html5/evoplay/slots/fruitburst" }
         ];
 
         const CATEGORIES = ["Hot Games", "Slots", "Casino", "Table", "Fishing"];
 
-        // PAGE ROUTING & NAVIGATION
         function showPage(pageId) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
 
-        // AUTHENTICATION LOGIC
         function handleAuth(type) {
             isLoggedIn = true;
-            document.getElementById('balanceText').innerText = "0.00"; // Balance stays 0.00 Demo
+            document.getElementById('balanceText').innerText = "0.00";
             alert(type === 'login' ? "Login Successful!" : "Registration Successful!");
             showPage('homePage');
         }
 
-        // RENDER CATEGORIES
         const catBox = document.getElementById('categoryContainer');
         CATEGORIES.forEach((cat, idx) => {
             const btn = document.createElement('button');
@@ -204,7 +219,6 @@
             catBox.appendChild(btn);
         });
 
-        // RENDER GAMES
         function renderGames(list) {
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = "";
@@ -228,7 +242,6 @@
             renderGames(filtered);
         }
 
-        // PLAY GAME FUNCTION
         function playGame(game) {
             if(!isLoggedIn) {
                 alert("ডেমো গেম খেলতে আগে লগইন বা রেজিস্ট্রেশন করুন!");
@@ -245,7 +258,19 @@
             document.getElementById('gameFrame').src = "";
         }
 
-        // INITIAL LOAD
+        // AUTO BANNER SLIDER LOGIC
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function nextSlide() {
+            if (slides.length === 0) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        setInterval(nextSlide, 3000);
+
         renderGames(GAMES_DATABASE);
     </script>
 </body>
